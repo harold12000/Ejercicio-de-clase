@@ -68,3 +68,41 @@ servidor envia los datos del modelo) e ip.dst filtra los paquetes que van hacia
 esa direccion (por ejemplo cuando el computador pide la descarga). Con esto se
 puede ver solo la conversacion entre el computador y el servidor de Ultralytics
 o Google Cloud Storage, sin ruido de otras conexiones.
+
+## Fase 3, Análisis Forense con RED HAND Fiabilidad vs Velocidad (retransmisiones TCP)
+
+En la captura descarga_tcp.pcap no se observo ningun evento marcado como
+tcp.analysis.retransmission. La herramienta si marco dos alertas de
+comportamiento (una "Control Connection" y una "Long Connection"), pero
+corresponden a una conexion normal y sostenida entre las IPs internas
+172.28.0.1 y 172.28.0.12 de la maquina de Colab, no a un problema real de
+red.
+
+Si hubiera aparecido un tcp.analysis.retransmission, significaria que un
+paquete no llego o llego con error y TCP lo volvio a enviar para asegurar que
+la informacion llegara completa. Esto es clave para la descarga de un archivo
+porque si falta un pedazo el archivo queda corrupto. En cambio en un video en
+vivo esto seria perjudicial porque reenviar un paquete atrasado ya no sirve de
+nada (el momento del video ya paso) y solo generaria mas retraso, por eso ahi
+se prefiere UDP que no reenvia nada.
+
+## Identificando el origen (filtros ip.dst / ip.src)
+
+En esta captura las direcciones que aparecen (172.28.0.1 y 172.28.0.12) son
+internas de la maquina virtual de Google Colab, ya que Colab enruta la salida
+a internet mediante un proxy interno, por lo que al capturar en la interfaz
+eth0 solo se ve el tramo interno de la conexion y no la IP real del servidor
+de Ultralytics o Google Cloud Storage.
+
+Aun asi, para aislar el trafico con un servidor especifico se puede usar en
+RED HAND o Wireshark un filtro como:
+
+ip.addr == [direccion IP del servidor]
+
+o de forma mas especifica:
+
+ip.src == [IP del servidor]  o  ip.dst == [IP del servidor]
+
+ip.src filtra los paquetes que salen desde esa direccion e ip.dst filtra los
+paquetes que van hacia esa direccion. Con esto se puede ver solo la
+conversacion entre dos equipos puntuales, sin ruido de otras conexiones.
