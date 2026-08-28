@@ -75,3 +75,6 @@ ip.src == [IP del servidor]  o  ip.dst == [IP del servidor]
 ip.src filtra los paquetes que salen desde esa direccion e ip.dst filtra los
 paquetes que van hacia esa direccion. Con esto se puede ver solo la
 conversacion entre dos equipos puntuales, sin ruido de otras conexiones.
+
+FASE 3 ULTIMA DE LA ACTIVIDAD
+[⬇️ Descargar archivo](https://github.com/TU-USUARIO/TU-REPOSITORIO/raw/refs/heads/main/red_convergente.html)
