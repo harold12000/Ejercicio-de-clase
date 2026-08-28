@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOC // Redes Convergentes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0d1117;
+    --panel: #151b23;
+    --panel-2: #1b232d;
+    --line: #263140;
+    --text: #dbe4ee;
+    --muted: #7c8b9c;
+    --data: #3ecf8e;    /* verde datos */
+    --voice: #f2a93b;   /* ambar voz */
+    --video: #5fb3ff;   /* azul video */
+    --alert: #e8553e;   /* coral alerta */
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); min-height:100vh;
+  }
+  .wrap{max-width:1100px; margin:0 auto; padding:28px 20px 60px;}
+
+  header{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:6px; flex-wrap:wrap; gap:8px;}
+  header h1{
+    font-family:var(--mono); font-size:22px; font-weight:800; letter-spacing:.5px; margin:0;
+    color:#fff;
+  }
+  header h1 span{color:var(--data);}
+  .tagline{font-family:var(--mono); font-size:12px; color:var(--muted); margin:0 0 20px;}
+
+  nav{display:flex; gap:4px; border-bottom:1px solid var(--line); margin-bottom:22px; overflow-x:auto;}
+  nav button{
+    background:none; border:none; color:var(--muted); font-family:var(--mono);
+    font-size:12.5px; padding:11px 14px; cursor:pointer; border-bottom:2px solid transparent;
+    white-space:nowrap; letter-spacing:.3px;
+  }
+  nav button .n{color:#4b5866; margin-right:6px;}
+  nav button.active{color:#fff; border-bottom-color:var(--data);}
+  nav button.active .n{color:var(--data);}
+
+  .panel{
+    background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:22px; margin-bottom:18px;
+  }
+  .panel h2{font-size:15px; margin:0 0 4px; color:#fff;}
+  .panel p.sub{font-family:var(--mono); font-size:11.5px; color:var(--muted); margin:0 0 18px;}
+
+  .grid{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+  @media (max-width:700px){.grid{grid-template-columns:1fr;}}
+
+  label{display:block; font-family:var(--mono); font-size:11px; color:var(--muted); margin-bottom:5px; letter-spacing:.4px;}
+  select, input{
+    width:100%; background:var(--panel-2); border:1px solid var(--line); color:var(--text);
+    padding:9px 10px; border-radius:6px; font-family:var(--mono); font-size:13px; margin-bottom:14px;
+  }
+  select:focus, input:focus{outline:1px solid var(--data); border-color:var(--data);}
+
+  button.action{
+    background:var(--data); color:#06110c; border:none; font-family:var(--mono); font-weight:700;
+    font-size:12.5px; padding:11px 18px; border-radius:6px; cursor:pointer; letter-spacing:.4px;
+  }
+  button.action:hover{filter:brightness(1.08);}
+
+  pre.output{
+    background:#080b0f; border:1px solid var(--line); border-radius:8px; padding:16px;
+    font-family:var(--mono); font-size:12.5px; line-height:1.6; color:#a9f5cf;
+    white-space:pre-wrap; word-break:break-word; margin-top:10px; min-height:40px;
+  }
+
+  /* dashboard */
+  .stat-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:16px;}
+  @media (max-width:700px){.stat-row{grid-template-columns:1fr;}}
+  .stat{background:var(--panel-2); border:1px solid var(--line); border-radius:8px; padding:16px;}
+  .stat .label{font-family:var(--mono); font-size:10.5px; color:var(--muted); letter-spacing:.5px; margin-bottom:8px;}
+  .stat .value{font-family:var(--mono); font-size:26px; font-weight:700; color:#fff;}
+  .bar{height:6px; background:#263140; border-radius:3px; margin-top:10px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--data); border-radius:3px; transition:width .5s ease;}
+
+  .led-row{display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; padding:9px 0; border-bottom:1px solid var(--line);}
+  .led-row:last-child{border-bottom:none;}
+  .led{width:8px; height:8px; border-radius:50%; background:var(--data); box-shadow:0 0 6px var(--data); flex:none;}
+
+  .qos-toggle{display:flex; gap:8px; margin-bottom:16px;}
+  .qos-toggle button{
+    flex:1; background:var(--panel-2); border:1px solid var(--line); color:var(--muted);
+    font-family:var(--mono); font-size:12px; padding:10px; border-radius:6px; cursor:pointer;
+  }
+  .qos-toggle button.sel{border-color:var(--voice); color:#fff;}
+  .qos-toggle button.sel.video{border-color:var(--video);}
+
+  .qos-metric{display:flex; justify-content:space-between; font-family:var(--mono); font-size:13px; padding:9px 0; border-bottom:1px solid var(--line);}
+  .qos-metric:last-of-type{border-bottom:none;}
+  .qos-status{margin-top:14px; padding:10px 12px; border-radius:6px; font-family:var(--mono); font-size:12.5px; font-weight:700;}
+  .ok{background:rgba(62,207,142,.12); color:var(--data); border:1px solid rgba(62,207,142,.3);}
+  .bad{background:rgba(232,85,62,.12); color:var(--alert); border:1px solid rgba(232,85,62,.3);}
+
+  footer{font-family:var(--mono); font-size:10.5px; color:#3f4a56; text-align:center; margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>NOC<span>//</span>REDES_CONVERGENTES</h1>
+  </header>
+  <p class="tagline">gestion y analisis en tiempo real — voz · video · datos</p>
+
+  <nav id="tabs">
+    <button data-tab="tpl" class="active"><span class="n">01</span>Plantillas</button>
+    <button data-tab="dash"><span class="n">02</span>Dashboard</button>
+    <button data-tab="qos"><span class="n">03</span>QoS Voz/Video</button>
+    <button data-tab="vlan"><span class="n">04</span>VLAN Voice</button>
+    <button data-tab="acl"><span class="n">05</span>ACL</button>
+  </nav>
+
+  <!-- 1. PLANTILLAS -->
+  <section class="panel view" id="tpl">
+    <h2>Generador de plantillas — switches / routers</h2>
+    <p class="sub">Cisco (IOS) y Huawei (VRP)</p>
+    <div class="grid">
+      <div>
+        <label>Marca</label>
+        <select id="tpl-vendor"><option value="cisco">Cisco</option><option value="huawei">Huawei</option></select>
+        <label>Interfaz</label>
+        <input id="tpl-if" placeholder="GigabitEthernet0/1">
+        <label>VLAN ID</label>
+        <input id="tpl-vlan" placeholder="10">
+      </div>
+      <div>
+        <label>Direccion IP</label>
+        <input id="tpl-ip" placeholder="192.168.10.1">
+        <label>Mascara</label>
+        <input id="tpl-mask" placeholder="255.255.255.0">
+        <button class="action" onclick="genTpl()" style="margin-top:8px;">Generar configuracion</button>
+      </div>
+    </div>
+    <pre class="output" id="tpl-out">// la configuracion aparece aqui</pre>
+  </section>
+
+  <!-- 2. DASHBOARD -->
+  <section class="panel view" id="dash" style="display:none">
+    <h2>Dashboard de red</h2>
+    <p class="sub">disponibilidad · rendimiento · eventos (datos simulados)</p>
+    <div class="stat-row">
+      <div class="stat">
+        <div class="label">DISPONIBILIDAD</div>
+        <div class="value" id="d-avail">--%</div>
+        <div class="bar"><i id="d-avail-bar" style="width:0%"></i></div>
+      </div>
+      <div class="stat">
+        <div class="label">LATENCIA PROMEDIO</div>
+        <div class="value" id="d-lat">-- ms</div>
+        <div class="bar"><i id="d-lat-bar" style="width:0%; background:var(--video)"></i></div>
+      </div>
+      <div class="stat">
+        <div class="label">USO ANCHO DE BANDA</div>
+        <div class="value" id="d-bw">--%</div>
+        <div class="bar"><i id="d-bw-bar" style="width:0%; background:var(--voice)"></i></div>
+      </div>
+    </div>
+    <button class="action" onclick="refreshDash()">Actualizar dashboard</button>
+    <div style="margin-top:16px;" id="d-events"></div>
+  </section>
+
+  <!-- 3. QOS -->
+  <section class="panel view" id="qos" style="display:none">
+    <h2>Analisis de trafico en tiempo real</h2>
+    <p class="sub">metricas de QoS simuladas</p>
+    <div class="qos-toggle">
+      <button id="qos-voz" class="sel" onclick="setQosType('voz')">Voz</button>
+      <button id="qos-video" onclick="setQosType('video')">Video</button>
+    </div>
+    <button class="action" onclick="runQos()">Analizar trafico</button>
+    <div style="margin-top:16px;">
+      <div class="qos-metric"><span>Jitter</span><span id="q-jitter">--</span></div>
+      <div class="qos-metric"><span>Latencia</span><span id="q-lat">--</span></div>
+      <div class="qos-metric"><span>Perdida de paquetes</span><span id="q-loss">--</span></div>
+    </div>
+    <div id="q-status"></div>
+  </section>
+
+  <!-- 4. VLAN VOICE -->
+  <section class="panel view" id="vlan" style="display:none">
+    <h2>VLAN Voice — IPv4 / IPv6</h2>
+    <p class="sub">trafico sensible al retardo</p>
+    <div class="grid">
+      <div>
+        <label>Marca</label>
+        <select id="vlan-vendor"><option value="cisco">Cisco</option><option value="huawei">Huawei</option></select>
+        <label>VLAN ID</label>
+        <input id="vlan-id" placeholder="20">
+      </div>
+      <div>
+        <label>IP v4 / mascara</label>
+        <input id="vlan-ip4" placeholder="192.168.20.1">
+        <input id="vlan-mask4" placeholder="255.255.255.0">
+        <label>IP v6</label>
+        <input id="vlan-ip6" placeholder="2001:db8::1">
+      </div>
+    </div>
+    <button class="action" onclick="genVlan()">Generar VLAN Voice</button>
+    <pre class="output" id="vlan-out">// la configuracion aparece aqui</pre>
+  </section>
+
+  <!-- 5. ACL -->
+  <section class="panel view" id="acl" style="display:none">
+    <h2>Control de trafico — ACL</h2>
+    <p class="sub">listas de acceso Cisco / Huawei</p>
+    <div class="grid">
+      <div>
+        <label>Marca</label>
+        <select id="acl-vendor"><option value="cisco">Cisco</option><option value="huawei">Huawei</option></select>
+        <label>Numero de ACL</label>
+        <input id="acl-num" placeholder="101">
+      </div>
+      <div>
+        <label>IP origen</label>
+        <input id="acl-src" placeholder="192.168.10.0">
+        <label>IP destino</label>
+        <input id="acl-dst" placeholder="192.168.20.0">
+        <label>Accion</label>
+        <select id="acl-action"><option value="permit">permit</option><option value="deny">deny</option></select>
+      </div>
+    </div>
+    <button class="action" onclick="genAcl()">Generar ACL</button>
+    <pre class="output" id="acl-out">// la regla aparece aqui</pre>
+  </section>
+
+  <footer>SENA · Actividad 5 · sistema de gestion de redes convergentes</footer>
+</div>
+
+<script>
+// ---- navegacion entre pestañas ----
+document.querySelectorAll('#tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.style.display='none');
+    document.getElementById(btn.dataset.tab).style.display='block';
+  });
+});
+
+// ---- 1. plantillas ----
+function genTpl(){
+  const vendor = document.getElementById('tpl-vendor').value;
+  const itf = document.getElementById('tpl-if').value || 'GigabitEthernet0/1';
+  const vlan = document.getElementById('tpl-vlan').value || '10';
+  const ip = document.getElementById('tpl-ip').value || '192.168.10.1';
+  const mask = document.getElementById('tpl-mask').value || '255.255.255.0';
+  let out;
+  if(vendor==='cisco'){
+    out = `! --- Plantilla Cisco ---
+enable
+configure terminal
+vlan ${vlan}
+ name VLAN_${vlan}
+exit
+interface ${itf}
+ switchport mode access
+ switchport voice vlan ${vlan}
+ ip address ${ip} ${mask}
+ no shutdown
+end`;
+  } else {
+    out = `# --- Plantilla Huawei ---
+system-view
+vlan ${vlan}
+ description VLAN_${vlan}
+quit
+interface ${itf}
+ port link-type access
+ port default vlan ${vlan}
+ voice-vlan ${vlan} enable
+ ip address ${ip} ${mask}
+ undo shutdown
+quit`;
+  }
+  document.getElementById('tpl-out').textContent = out;
+}
+
+// ---- 2. dashboard ----
+function refreshDash(){
+  const avail = (95 + Math.random()*5).toFixed(2);
+  const lat = (1 + Math.random()*24).toFixed(1);
+  const bw = (20 + Math.random()*70).toFixed(1);
+  document.getElementById('d-avail').textContent = avail+'%';
+  document.getElementById('d-avail-bar').style.width = avail+'%';
+  document.getElementById('d-lat').textContent = lat+' ms';
+  document.getElementById('d-lat-bar').style.width = Math.min(lat*3,100)+'%';
+  document.getElementById('d-bw').textContent = bw+'%';
+  document.getElementById('d-bw-bar').style.width = bw+'%';
+
+  const eventos = [
+    'Enlace WAN estable',
+    'VLAN Voice sin perdidas reportadas',
+    `Uso de CPU del switch: ${Math.floor(10+Math.random()*50)}%`,
+    'Sincronizacion NTP correcta'
+  ];
+  document.getElementById('d-events').innerHTML =
+    '<div class="label" style="font-family:var(--mono);font-size:10.5px;color:var(--muted);margin-bottom:8px;">EVENTOS RECIENTES</div>' +
+    eventos.map(e=>`<div class="led-row"><span class="led"></span>${e}</div>`).join('');
+}
+refreshDash();
+
+// ---- 3. qos ----
+let qosType = 'voz';
+function setQosType(t){
+  qosType = t;
+  document.getElementById('qos-voz').classList.toggle('sel', t==='voz');
+  document.getElementById('qos-video').classList.toggle('sel video', t==='video');
+}
+function runQos(){
+  const jitter = (Math.random()*30).toFixed(1);
+  const lat = (5 + Math.random()*145).toFixed(1);
+  const loss = (Math.random()*5).toFixed(2);
+  document.getElementById('q-jitter').textContent = jitter+' ms';
+  document.getElementById('q-lat').textContent = lat+' ms';
+  document.getElementById('q-loss').textContent = loss+'%';
+  const ok = lat<150 && jitter<30 && loss<1;
+  document.getElementById('q-status').innerHTML =
+    `<div class="qos-status ${ok?'ok':'bad'}">${ok? 'CALIDAD ACEPTABLE para trafico de '+qosType : 'CALIDAD DEGRADADA — revisar VLAN Voice y ACL'}</div>`;
+}
+
+// ---- 4. vlan voice ----
+function genVlan(){
+  const vendor = document.getElementById('vlan-vendor').value;
+  const vlan = document.getElementById('vlan-id').value || '20';
+  const ip4 = document.getElementById('vlan-ip4').value || '192.168.20.1';
+  const mask4 = document.getElementById('vlan-mask4').value || '255.255.255.0';
+  const ip6 = document.getElementById('vlan-ip6').value || '2001:db8::1';
+  let out;
+  if(vendor==='cisco'){
+    out = `! --- VLAN Voice Cisco (IPv4 + IPv6) ---
+vlan ${vlan}
+ name VOICE_VLAN
+exit
+interface vlan ${vlan}
+ ip address ${ip4} ${mask4}
+ ipv6 address ${ip6}
+ no shutdown`;
+  } else {
+    out = `# --- VLAN Voice Huawei (IPv4 + IPv6) ---
+vlan ${vlan}
+ description VOICE_VLAN
+interface Vlanif${vlan}
+ ip address ${ip4} ${mask4}
+ ipv6 address ${ip6}
+ undo shutdown`;
+  }
+  document.getElementById('vlan-out').textContent = out;
+}
+
+// ---- 5. acl ----
+function genAcl(){
+  const vendor = document.getElementById('acl-vendor').value;
+  const num = document.getElementById('acl-num').value || '101';
+  const src = document.getElementById('acl-src').value || '192.168.10.0';
+  const dst = document.getElementById('acl-dst').value || '192.168.20.0';
+  const action = document.getElementById('acl-action').value;
+  let out;
+  if(vendor==='cisco'){
+    out = `access-list ${num} ${action} ip ${src} ${dst}`;
+  } else {
+    out = `acl number ${num}\n rule ${action} ip source ${src} destination ${dst}`;
+  }
+  document.getElementById('acl-out').textContent = out;
+}
+</script>
+</body>
+</html>
