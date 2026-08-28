@@ -80,4 +80,4 @@ FASE 3 ULTIMA DE LA ACTIVIDAD
 
 ## Descargar archivo
 
-[⬇️ DESCARGAR RED CONVERGENTE](https://github.com/harold12000/red-convergente/raw/refs/heads/main/red_convergente.html)
+[⬇️ Descargar Red Convergente](./red_convergente.html)
