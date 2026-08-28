@@ -1,4 +1,5 @@
-# Ejercicio-de-clase
+# Ejercicio en Clase - Actividad 5
+
 ## Que es un archivo pcap
 
 Un archivo .pcap (Packet Capture) es un archivo que guarda todo el trafico de
@@ -39,38 +40,6 @@ video se veria trabado.
 
 ## 3. Fiabilidad vs Velocidad (retransmisiones TCP)
 
-[Completar aqui segun lo que se vea en la captura real: si aparecio o no
-tcp.analysis.retransmission]
-
-Si aparece un tcp.analysis.retransmission quiere decir que un paquete no llego
-o llego con error, y TCP lo volvio a enviar para asegurarse de que la informacion
-quedara completa. Esto es clave para la descarga de un archivo porque si falta
-un pedazo el archivo queda corrupto. En cambio en un video en vivo esto seria
-perjudicial porque reenviar un paquete atrasado ya no sirve de nada (el momento
-del video ya paso) y solo generaria mas retraso, por eso ahi se prefiere UDP que
-no reenvia nada.
-
-## 4. Identificando el origen (filtros ip.dst / ip.src)
-
-[Completar aqui con la IP real que aparece en tu captura]
-
-Para aislar el trafico que viene del servidor que entrego el modelo se puede usar
-un filtro en RED HAND o Wireshark como:
-
-ip.addr == [direccion IP del servidor]
-
-o de forma mas especifica:
-
-ip.src == [IP del servidor]  o  ip.dst == [IP del servidor]
-
-ip.src filtra los paquetes que salen desde esa direccion (por ejemplo cuando el
-servidor envia los datos del modelo) e ip.dst filtra los paquetes que van hacia
-esa direccion (por ejemplo cuando el computador pide la descarga). Con esto se
-puede ver solo la conversacion entre el computador y el servidor de Ultralytics
-o Google Cloud Storage, sin ruido de otras conexiones.
-
-## Fase 3, Análisis Forense con RED HAND Fiabilidad vs Velocidad (retransmisiones TCP)
-
 En la captura descarga_tcp.pcap no se observo ningun evento marcado como
 tcp.analysis.retransmission. La herramienta si marco dos alertas de
 comportamiento (una "Control Connection" y una "Long Connection"), pero
@@ -86,7 +55,7 @@ vivo esto seria perjudicial porque reenviar un paquete atrasado ya no sirve de
 nada (el momento del video ya paso) y solo generaria mas retraso, por eso ahi
 se prefiere UDP que no reenvia nada.
 
-## Identificando el origen (filtros ip.dst / ip.src)
+## 4. Identificando el origen (filtros ip.dst / ip.src)
 
 En esta captura las direcciones que aparecen (172.28.0.1 y 172.28.0.12) son
 internas de la maquina virtual de Google Colab, ya que Colab enruta la salida
